@@ -12,4 +12,4 @@ try {
 }
 
 //console.log(sum(1));
-console.log('this works!')
+console.log("this works!");
