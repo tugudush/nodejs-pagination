@@ -33,19 +33,16 @@
             <div>
                 current page: <%= currentPage %>
             </div>
-            <section class="pagination">
-              <% if (hasPreviousPage) { %>
-                <a href="/?page=<%= prevPage %>">Previous</a>
-              <% } %>
+
+            <%- include('../includes/pagination.ejs', {
+                currentPage: currentPage,
+                hasNextPage: hasNextPage,
+                hasPreviousPage: hasPreviousPage,
+                nextPage: nextPage,
+                prevPage: prevPage,
+                totalPages: totalPages
+            }) %>
             
-              <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="/?page=<%= i %>" class="<%= i === parseInt(currentPage) ? 'active' : '' %>"><%= i %></a>
-              <% } %>
-            
-              <% if (hasNextPage) { %>
-                <a href="/?page=<%= nextPage %>">Next</a>
-              <% } %>
-            </section>
         <% } else { %>
             <h1>No Products Found!</h1>
         <% } %>
