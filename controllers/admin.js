@@ -2,6 +2,7 @@
 const fileHelper = require("../util/file");
 const { validationResult } = require("express-validator");
 const Product = require("../models/product");
+const ITEMS_PER_PAGE = 2;
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -175,19 +176,51 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  // Product.find({ userId: req.user._id })
+  //   .then((products) => {
+  //     console.log(products);
+  //     res.render("admin/products", {
+  //       prods: products,
+  //       pageTitle: "Admin Products",
+  //       path: "/admin/products",
+  //       isAuthenticated: req.session.isLoggedIn,
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     const error = new Error(err);
+  //     error.httpStatusCode = 500;
+  //     return next(error);
+  //   });
+
+  const page = parseInt(req.query.page, 10) || 1;
+  let totalItems;
+
   Product.find({ userId: req.user._id })
-    // .select('title price -_id')
-    // .populate('userId', 'name')
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
-      console.log(products);
+      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+      console.log("total page: ", totalPages);
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
         isAuthenticated: req.session.isLoggedIn,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        totalPages: totalPages,
       });
     })
     .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
